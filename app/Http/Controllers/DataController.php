@@ -12,6 +12,12 @@ class DataController extends Controller
     {
         $filePath = "../storage/app/2017/January.csv";
 
+        // Get year and month from file path
+        $explode = explode('/', $filePath);
+        $year = $explode[3];
+        $monthExplode = explode('.', $explode[4]);
+        $month = $monthExplode[0];
+
         $csv = new CsvDataExtractor();
 
         $data = $csv->readCSV($filePath);
@@ -23,8 +29,8 @@ class DataController extends Controller
         $savings = $csv->calculateSavings($monthlyCategoryData);
 
         $expenses = Expense::create([
-            'year' => '2017',
-            'month' => 'January',
+            'year' => $year,
+            'month' => $month,
             'monthly_data' => $monthlyMemoData,
             'categories_data' => $monthlyCategoryData,
             'money_in' => $savings['money_in'],
@@ -37,5 +43,21 @@ class DataController extends Controller
             'message' => 'Data added successfully',
             'data' => $expenses
         ]);
+    }
+
+    public function getMonthlyData($year, $month)
+    {
+        $data = Expense::where('year', $year)
+            ->where('month', $month)
+            ->get();
+
+        if (count($data) == 0) {
+            return response()->json([
+                'status' => '401',
+                'message' => 'The data could not be found'
+            ]);
+        }
+
+        return response()->json($data);
     }
 }

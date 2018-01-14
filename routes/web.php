@@ -16,6 +16,6 @@ $router->get('/', function () use ($router) {
 });
 
 $router->group(['prefix' => 'api'], function ($router) {
-    $router->get('data/get/memos', 'DataController@setMonthlyData');
-
+    $router->get('data/set', 'DataController@setMonthlyData');
+    $router->get('data/get/{year}/{month}', 'DataController@getMonthlyData');
 });
