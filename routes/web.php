@@ -22,6 +22,9 @@ $router->group(['prefix' => 'api'], function ($router) {
     // Gets the total number of years and months uploaded to the DB
     $router->get('data/get/years-and-months', 'DataController@getYearsAndMonths');
 
-
+    // Gets the monthly data
     $router->get('data/get/{year}/{month}', 'DataController@getMonthlyData');
+
+    // Gets the yearly analysis data
+    $router->get('data/get/{year}', 'DataController@getYearlyData');
 });

@@ -49,6 +49,13 @@ class DataController extends Controller
     {
         $expenses = Expense::all();
 
+        if (count($expenses) == 0) {
+            return response()->json([
+                'status' => '401',
+                'message' => 'The data could not be found'
+            ]);
+        }
+
         $info = [];
         $allYears = [];
         $yearsMonths = [];
@@ -72,7 +79,7 @@ class DataController extends Controller
         return response()->json([
             'status' => '200',
             'message' => 'Years and months have been acquired',
-            $yearsMonths
+            'years_months' => $yearsMonths
         ]);
     }
 
@@ -92,7 +99,58 @@ class DataController extends Controller
         return response()->json([
             'status' => '200',
             'message' => 'Data has been acquired successfully',
-            $data
+            'all_data' => $data
+        ]);
+    }
+
+    public function getYearlyData($year)
+    {
+        $expenses = Expense::where('year', $year)->get();
+
+        if (count($expenses) == 0) {
+            return response()->json([
+                'status' => '401',
+                'message' => 'The data could not be found'
+            ]);
+        }
+
+        // Get all months
+        $allMonths = [];
+        foreach ($expenses as $expense) {
+            $allMonths[] = $expense->month;
+        }
+
+        $info = [];
+        $yearlyInfo = [];
+        $savings = [];
+        foreach ($allMonths as $month) {
+            foreach ($expenses as $expense) {
+                if ($expense->month === $month) {
+                    $info['year'] = $expense->year;
+                    $info['month'] = $expense->month;
+                    $info['money_in'] = $expense->money_in;
+                    $info['money_out'] = $expense->money_out;
+                    $info['savings'] = $expense->savings;
+
+                    $savings[$month] = $expense->savings;
+                }
+            }
+            $yearlyInfo[$month] = $info;
+            $info = [];
+        }
+
+        // Total Savings for the year
+        $total = '0';
+        foreach ($savings as $saving) {
+            $total = bcadd($total, $saving, 2);
+        }
+        $savings['total'] = $total;
+
+        return response()->json([
+            'status' => '200',
+            'message' => 'Data has been acquired successfully',
+            'yearly_info' => $yearlyInfo,
+            'savings' => $savings
         ]);
     }
 }
