@@ -52,14 +52,15 @@ class CsvDataExtractor
         sort($memos);
 
         // Add up all costs associated with each key
-        $value = 0;
+        $value = '0';
         $expenses = [];
         foreach ($memos as $memo) {
             foreach ($data as $item) {
                 if ($item[5] === $memo) {
-                    $expenses[$memo] = number_format($value += (float)$item[3], 2);
+                    $value = bcadd($value, $item[3], 2);
                 }
             }
+            $expenses[$memo] = $value;
             $value = 0;
         }
 
@@ -102,9 +103,10 @@ class CsvDataExtractor
         foreach ($categories as $category) {
             foreach ($data as $item) {
                 if ($item[6] === $category) {
-                    $expenses[$category] = number_format($value += (float)$item[3], 2);
+                    $value = bcadd($value, $item[3], 2);
                 }
             }
+            $expenses[$category] = $value;
             $value = 0;
         }
 
@@ -154,18 +156,18 @@ class CsvDataExtractor
     public function calculateSavings($monthlyCategoryData)
     {
         $monthlyData = json_decode($monthlyCategoryData);
-        $money_in = 0;
-        $money_out = 0;
+        $money_in = '0';
+        $money_out = '0';
         $total = [];
 
         foreach ($monthlyData as $key => $value) {
             if ($key === "Income") {
                 $money_in = $value;
             } else {
-                $money_out += $value;
+                $money_out = bcadd($money_out, $value, 2);
             }
         }
-        $savings = number_format($money_in + $money_out, 2);
+        $savings = bcadd($money_in, $money_out, 2);
 
         $total['money_in'] = $money_in;
         $total['money_out'] = $money_out;

@@ -10,7 +10,7 @@ class DataController extends Controller
 {
     public function setMonthlyData()
     {
-        $filePath = "../storage/app/2017/January.csv";
+        $filePath = "../storage/app/2017/February.csv";
 
         // Get year and month from file path
         $explode = explode('/', $filePath);
@@ -45,6 +45,37 @@ class DataController extends Controller
         ]);
     }
 
+    public function getYearsAndMonths()
+    {
+        $expenses = Expense::all();
+
+        $info = [];
+        $allYears = [];
+        $yearsMonths = [];
+
+        // Find all available years
+        foreach ($expenses as $expense) {
+            $allYears[] = $expense->year;
+        }
+        $years = array_unique($allYears);
+
+        foreach ($years as $year) {
+            foreach ($expenses as $expense) {
+                if ($expense->year === $year) {
+                    $info[] = $expense->month;
+                }
+            }
+            $yearsMonths[$year] = $info;
+            $info = [];
+        }
+
+        return response()->json([
+            'status' => '200',
+            'message' => 'Years and months have been acquired',
+            $yearsMonths
+        ]);
+    }
+
     public function getMonthlyData($year, $month)
     {
         $data = Expense::where('year', $year)
@@ -58,6 +89,10 @@ class DataController extends Controller
             ]);
         }
 
-        return response()->json($data);
+        return response()->json([
+            'status' => '200',
+            'message' => 'Data has been acquired successfully',
+            $data
+        ]);
     }
 }

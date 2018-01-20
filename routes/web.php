@@ -16,6 +16,12 @@ $router->get('/', function () use ($router) {
 });
 
 $router->group(['prefix' => 'api'], function ($router) {
+    // Extracts data from csv files and persists to DB
     $router->get('data/set', 'DataController@setMonthlyData');
+
+    // Gets the total number of years and months uploaded to the DB
+    $router->get('data/get/years-and-months', 'DataController@getYearsAndMonths');
+
+
     $router->get('data/get/{year}/{month}', 'DataController@getMonthlyData');
 });
