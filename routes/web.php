@@ -14,3 +14,20 @@
 $router->get('/', function () use ($router) {
     return $router->app->version();
 });
+
+$router->group(['prefix' => 'api'], function ($router) {
+    // Extracts data from csv files and persists to DB
+    $router->get('data/set', 'DataController@setMonthlyData');
+
+    // Gets the total number of years and months uploaded to the DB
+    $router->get('data/get/years-and-months', 'DataController@getYearsAndMonths');
+
+    // Gets the monthly data
+    $router->get('data/get/{year}/{month}', 'DataController@getMonthlyData');
+
+    // Gets the yearly analysis data
+    $router->get('data/get/{year}', 'DataController@getYearlyData');
+
+    // Gets the yearly category data
+    $router->get('data/yearly-categories/{year}', 'DataController@getYearlyCategories');
+});
