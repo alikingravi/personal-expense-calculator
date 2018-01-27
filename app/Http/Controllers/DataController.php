@@ -8,9 +8,14 @@ use Illuminate\Http\Request;
 
 class DataController extends Controller
 {
+    /**
+     * Extracts data from the CSV file and stores it in the db
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function setMonthlyData()
     {
-        $filePath = "../storage/app/2017/February.csv";
+        $filePath = "../storage/app/2017/December.csv";
 
         // Get year and month from file path
         $explode = explode('/', $filePath);
@@ -19,13 +24,9 @@ class DataController extends Controller
         $month = $monthExplode[0];
 
         $csv = new CsvDataExtractor();
-
         $data = $csv->readCSV($filePath);
-
         $monthlyMemoData = $csv->formatMonthlyMemoData($data);
-
         $monthlyCategoryData = $csv->formatMonthlyCategoryData($data);
-
         $savings = $csv->calculateSavings($monthlyCategoryData);
 
         $expenses = Expense::create([
@@ -45,6 +46,11 @@ class DataController extends Controller
         ]);
     }
 
+    /**
+     * Gets the years and months available in the db
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function getYearsAndMonths()
     {
         $expenses = Expense::all();
@@ -83,6 +89,13 @@ class DataController extends Controller
         ]);
     }
 
+    /**
+     * Gets monthly data
+     *
+     * @param $year
+     * @param $month
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function getMonthlyData($year, $month)
     {
         $data = Expense::where('year', $year)
@@ -103,6 +116,12 @@ class DataController extends Controller
         ]);
     }
 
+    /**
+     * Gets yearly money-in, money-out and savings data
+     *
+     * @param $year
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function getYearlyData($year)
     {
         $expenses = Expense::where('year', $year)->get();
@@ -151,6 +170,40 @@ class DataController extends Controller
             'message' => 'Data has been acquired successfully',
             'yearly_info' => $yearlyInfo,
             'savings' => $savings
+        ]);
+    }
+
+    /**
+     * Gets data for yearly categories e.g bills, groceries etc
+     *
+     * @param $year
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getYearlyCategories($year)
+    {
+        $expenses = Expense::where('year', $year)->get();
+
+        $info = [];
+        foreach ($expenses as $expense) {
+            $info[] = json_decode($expense->categories_data);
+        }
+
+        $bills = [];
+        $groceries = [];
+        $restaurants = [];
+        foreach ($info as $value) {
+            $bills[] = ltrim($value->Bills, '-');
+            $groceries[] = ltrim($value->Groceries, '-');
+            $restaurants[] = ltrim($value->Restaurants, '-');
+        }
+        $yearlyCategories['bills'] = $bills;
+        $yearlyCategories['groceries'] = $groceries;
+        $yearlyCategories['restaurants'] = $restaurants;
+
+        return response()->json([
+            'status' => '200',
+            'message' => 'Data has been acquired successfully',
+            'yearly_categories' => $yearlyCategories
         ]);
     }
 }

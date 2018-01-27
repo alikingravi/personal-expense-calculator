@@ -27,4 +27,7 @@ $router->group(['prefix' => 'api'], function ($router) {
 
     // Gets the yearly analysis data
     $router->get('data/get/{year}', 'DataController@getYearlyData');
+
+    // Gets the yearly category data
+    $router->get('data/yearly-categories/{year}', 'DataController@getYearlyCategories');
 });
