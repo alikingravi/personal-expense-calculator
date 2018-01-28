@@ -1,6 +1,7 @@
-This API works with a pre-cleaned .csv file downloaded from your online bank account.
+# Introduction
+
+This API works with a .csv file downloaded from your online bank account.
 The file can then be cleaned and categories can be added manually in a new column (see example.csv file in project root).
-Once complete, copy and paste the file in the storage folder. For example you want to save data for January 2017, store the file in storage/2017/January.csv
 
 # Lumen PHP Framework
 
