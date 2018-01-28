@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Expense;
 use App\Services\CsvDataExtractor;
-use Illuminate\Http\Request;
 
 class DataController extends Controller
 {
@@ -23,12 +22,14 @@ class DataController extends Controller
         $monthExplode = explode('.', $explode[4]);
         $month = $monthExplode[0];
 
+        // Use CsvDataExtractor class to read file data and form data arrays
         $csv = new CsvDataExtractor();
         $data = $csv->readCSV($filePath);
         $monthlyMemoData = $csv->formatMonthlyMemoData($data);
         $monthlyCategoryData = $csv->formatMonthlyCategoryData($data);
         $savings = $csv->calculateSavings($monthlyCategoryData);
 
+        // Persist data to DB
         $expenses = Expense::create([
             'year' => $year,
             'month' => $month,
@@ -55,6 +56,7 @@ class DataController extends Controller
     {
         $expenses = Expense::all();
 
+        // Handle errors
         if (count($expenses) == 0) {
             return response()->json([
                 'status' => '401',
@@ -66,7 +68,7 @@ class DataController extends Controller
         $allYears = [];
         $yearsMonths = [];
 
-        // Find all available years
+        // Find all available years and months
         foreach ($expenses as $expense) {
             $allYears[] = $expense->year;
         }
@@ -98,10 +100,12 @@ class DataController extends Controller
      */
     public function getMonthlyData($year, $month)
     {
+        // Filter data by given year and month
         $data = Expense::where('year', $year)
             ->where('month', $month)
             ->get();
 
+        // Handle errors
         if (count($data) == 0) {
             return response()->json([
                 'status' => '401',
@@ -126,6 +130,7 @@ class DataController extends Controller
     {
         $expenses = Expense::where('year', $year)->get();
 
+        // Handle erros
         if (count($expenses) == 0) {
             return response()->json([
                 'status' => '401',
@@ -139,6 +144,7 @@ class DataController extends Controller
             $allMonths[] = $expense->month;
         }
 
+        // Get all expenses and savings data
         $info = [];
         $yearlyInfo = [];
         $savings = [];
@@ -183,11 +189,16 @@ class DataController extends Controller
     {
         $expenses = Expense::where('year', $year)->get();
 
+        /*
+         * categories_data contains a long string which stores data in json format
+         * it is necessary to decode this data and store it in an array
+         * */
         $info = [];
         foreach ($expenses as $expense) {
             $info[] = json_decode($expense->categories_data);
         }
 
+        // Store data for 3 different categories: bills, groceries and restaurants
         $bills = [];
         $groceries = [];
         $restaurants = [];

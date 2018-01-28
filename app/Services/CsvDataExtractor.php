@@ -10,13 +10,16 @@ namespace App\Services;
 use function MongoDB\BSON\toJSON;
 
 /**
- * Class reads data from pre-cleaned .csv files and returns useful content
+ * Reads data from pre-cleaned .csv files and returns useful content
+ * Please note that the csv data must be cleaned before hand and a
+ * categories column must be added in front of each expense.
+ * An example csv file can be found on my github page:
+ *
  *
  * @package App\Services
  */
 class CsvDataExtractor
 {
-
     /**
      * Reads a pre-cleaned .csv file and returns contents
      *
@@ -37,7 +40,13 @@ class CsvDataExtractor
     }
 
     /**
-     * Formats an array of data to return values of only unique memo keys
+     * Formats an array of data and adds up all the costs of all the expenses
+     *
+     * item[5] is the name of the expense for e.g Amazon
+     * item[3] is the amount of the expense e.g -32.45
+     * Note that csv file columns should be exactly
+     * the same for each month. Example file can
+     * be found on
      *
      * @param $data
      * @return array
@@ -69,6 +78,8 @@ class CsvDataExtractor
 
     /**
      * Filters through the data and returns a list of unique memo keys
+     * In this specific csv file, index number 5 contains the memo
+     * which is basically a name of the expense, for e.g Nandos
      *
      * @param $data
      * @return array
@@ -84,6 +95,9 @@ class CsvDataExtractor
 
     /**
      * Formats an array of data to return values of only unique category keys
+     *
+     * In this specific csv file, index number 3 is the amount of the expense
+     * and index number 6 is the name of category the expense belongs to
      *
      * @param $data
      * @return array
@@ -116,7 +130,9 @@ class CsvDataExtractor
     }
 
     /**
-     * Cleans out commas in array values
+     * Cleans out commas in array values for e.g
+     * 2,340 is cleaned to 2340. This is
+     * necessary for calculations
      *
      * @param $data
      * @return array
@@ -133,6 +149,8 @@ class CsvDataExtractor
 
     /**
      * Filters through the data and returns a list of unique category keys
+     * In this specific csv file, index number 6 contains the name of
+     * the category the expense belongs to, for e.g Groceries
      *
      * @param $data
      * @return array

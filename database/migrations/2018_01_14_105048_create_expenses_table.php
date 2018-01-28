@@ -7,7 +7,7 @@ use Illuminate\Database\Migrations\Migration;
 class CreateExpensesTable extends Migration
 {
     /**
-     * Run the migrations.
+     * Create an expenses table which will hold the yearly and monthly expense data
      *
      * @return void
      */
